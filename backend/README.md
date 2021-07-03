@@ -1,112 +1,123 @@
-<!--
-title: 'Serverless Nodejs Rest API with TypeScript And MongoDB Atlas'
-description: 'This is simple REST API example for AWS Lambda By Serverless framwork with TypeScript and MongoDB Atlas.'
-layout: Doc
-framework: v1
-platform: AWS
-language: nodeJS
-authorLink: 'https://github.com/Q-Angelo'
-authorName: 'May Jun'
-authorAvatar: 'https://avatars0.githubusercontent.com/u/17956058?s=460&u=f3acebabd097e6e93d5be5a8366b980fea5b15aa&v=4'
--->
-# Serverless Nodejs Rest API with TypeScript And MongoDB Atlas
+# Serverless Framework Node Express API on AWS
 
-This is simple REST API example for AWS Lambda By Serverless framwork with TypeScript and MongoDB Atlas.
+This template demonstrates how to develop and deploy a simple Node Express API service running on AWS Lambda using the traditional Serverless Framework.
 
-## Use Cases
+## Anatomy of the template
 
-* REST API with typescript
-* MongoDB Atlas data storage
-* Multi-environment management under Serverless
-* Mocha unit tests and lambda-tester interface test
-* AWS lambda function log view
-
-## Invoke the function locally
-
-```bash
-serverless invoke local --function find
-```
-
-Which should result in:
-
-```bash
-Serverless: Compiling with Typescript...
-Serverless: Using local tsconfig.json
-Serverless: Typescript compiled.
-
-{
-    "statusCode": 200,
-    "body": "{\"code\":0,\"message\":\"success\",\"data\":[{\"_id\":\"5dff21f71c9d440000a30dad\",\"createdAt\":\"2020-05-16T09:27:51.219Z\"},{\"_id\":\"5dff22ba1c9d440000a30dae\",\"createdAt\":\"2020-05-16T09:27:51.220Z\"}]}"
-}
-```
-
-## Deploy
-
-### To Test It Locally
-
-* Run ```npm install``` to install all the necessary dependencies.
-* Run ```npm run local``` use serverless offline to test locally. 
-
-### Deploy on AWS, simply run:
-
-```
-$ npm run deploy
-
-# or
-
-$ serverless deploy
-```
-
-The expected result should be similar to:
-
-```
-Serverless: Compiling with Typescript...
-Serverless: Using local tsconfig.json
-Serverless: Typescript compiled.
-Serverless: Packaging service...
-Serverless: Excluding development dependencies...
-Serverless: Uploading CloudFormation file to S3...
-Serverless: Uploading artifacts...
-Serverless: Uploading service aws-node-rest-api-typescript.zip file to S3 (1.86 MB)...
-Serverless: Validating template...
-Serverless: Updating Stack...
-Serverless: Checking Stack update progress...
-......................................
-Serverless: Stack update finished...
-Service Information
-service: aws-node-rest-api-typescript
-stage: dev
-region: us-east-1
-stack: aws-node-rest-api-typescript-dev
-resources: 32
-api keys:
-  None
-endpoints:
-  POST - https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/books
-  PUT - https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/books/{id}
-  GET - https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/books
-  GET - https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/books/{id}
-  DELETE - https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/books/{id}
-functions:
-  create: aws-node-rest-api-typescript-dev-create
-  update: aws-node-rest-api-typescript-dev-update
-  find: aws-node-rest-api-typescript-dev-find
-  findOne: aws-node-rest-api-typescript-dev-findOne
-  deleteOne: aws-node-rest-api-typescript-dev-deleteOne
-layers:
-  None
-Serverless: Removing old service artifacts from S3...
-Serverless: Run the "serverless" command to setup monitoring, troubleshooting and testing.
-```
+This template configures a single function, `api`, which is responsible for handling all incoming requests thanks to configured `http` events. To learn more about `http` event configuration options, please refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/). As the events are configured in a way to accept all incoming requests, `express` framework is responsible for routing and handling requests internally. Implementation takes advantage of `serverless-http` package, which allows you to wrap existing `express` applications. To learn more about `serverless-http`, please refer to corresponding [GitHub repository](https://github.com/dougmoscrop/serverless-http).
 
 ## Usage
 
-send an HTTP request directly to the endpoint using a tool like curl
+### Deployment
+
+This example is made to work with the Serverless Framework dashboard, which includes advanced features such as CI/CD, monitoring, metrics, etc.
+
+In order to deploy with dashboard, you need to first login with:
 
 ```
-curl https://xxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/books
+serverless login
 ```
 
-## Scaling
+install dependencies with:
 
-By default, AWS Lambda limits the total concurrent executions across all functions within a given region to 100. The default limit is a safety limit that protects you from costs due to potential runaway or recursive functions during initial development and testing. To increase this limit above the default, follow the steps in [To request a limit increase for concurrent executions](http://docs.aws.amazon.com/lambda/latest/dg/concurrent-executions.html#increase-concurrent-executions-limit).
+```
+npm install
+```
+
+and then perform deployment with:
+
+```
+serverless deploy
+```
+
+After running deploy, you should see output similar to:
+
+```bash
+Serverless: Packaging service...
+Serverless: Excluding development dependencies...
+Serverless: Creating Stack...
+Serverless: Checking Stack create progress...
+........
+Serverless: Stack create finished...
+Serverless: Uploading CloudFormation file to S3...
+Serverless: Uploading artifacts...
+Serverless: Uploading service aws-node-express-api.zip file to S3 (711.23 KB)...
+Serverless: Validating template...
+Serverless: Updating Stack...
+Serverless: Checking Stack update progress...
+.................................
+Serverless: Stack update finished...
+Service Information
+service: aws-node-express-api
+stage: dev
+region: us-east-1
+stack: aws-node-express-api-dev
+resources: 12
+api keys:
+  None
+endpoints:
+  ANY - https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/
+  ANY - https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/{proxy+}
+functions:
+  api: aws-node-express-api-dev-api
+layers:
+  None
+```
+
+_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
+
+### Invocation
+
+After successful deployment, you can call the created application via HTTP:
+
+```bash
+curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/
+```
+
+Which should result in the following response:
+
+```
+{"message":"Hello from root!"}
+```
+
+Calling the `/hello` path with:
+
+```bash
+curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/hello
+```
+
+Should result in the following response:
+
+```bash
+{"message":"Hello from path!"}
+```
+
+If you try to invoke a path or method that does not have a configured handler, e.g. with:
+
+```bash
+curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/dev/nonexistent
+```
+
+You should receive the following response:
+
+```bash
+{"error":"Not Found"}
+```
+
+### Local development
+
+It is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
+
+```bash
+serverless plugin install -n serverless-offline
+```
+
+It will add the `serverless-offline` plugin to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`.
+
+After installation, you can start local emulation with:
+
+```
+serverless offline
+```
+
+To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).

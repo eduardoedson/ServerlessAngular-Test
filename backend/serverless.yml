@@ -1,53 +1,19 @@
 org: eduardoedson
-app: desafio
-service: desafio
+app: continuous-team-backend
+service: continuous-team-backend
+
+frameworkVersion: '2'
 
 provider:
   name: aws
   runtime: nodejs12.x
-  environment:
-    NODE_ENV: dev
-
-plugins:
-  - serverless-plugin-typescript 
-  - serverless-offline
-
-package:
-  exclude:
-    - config/.env.stg
-    - config/.env.pro
-  include:
-    - config/.env.dev
+  lambdaHashingVersion: '20201221'
 
 functions:
-  create:
-    handler: app/handler.create
+  api:
+    handler: handler.handler
     events:
       - http:
-          path: books
-          method: post
-  update:
-    handler: app/handler.update
-    events:
-      - http:
-          path: books/{id}
-          method: put
-  find:
-    handler: app/handler.find
-    events:
-      - http:
-          path: books
-          method: get
-  findOne:
-    handler: app/handler.findOne
-    events:
-      - http:
-          path: books/{id}
-          method: get
-
-  deleteOne:
-    handler: app/handler.deleteOne
-    events:
-      - http:
-          path: books/{id}
-          method: delete
+          path: /
+          method: ANY
+          cors: false
